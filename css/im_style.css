@@ -1,0 +1,99 @@
+/*
+    
+	Copyright (c) 2014 Intel Corporation (UK) Ltd.
+
+	Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+
+*/
+
+
+body {
+	height:100%; padding:0; margin:0; 
+	font-family: "intel Clear", Arial, Verdana, sans-serif;
+
+	display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+	display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+	display: -ms-flexbox;      /* TWEENER - IE 10 */
+	display: -webkit-flex;     /* NEW - Chrome */
+	display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
+	-ms-flex-direction: column;
+	flex-direction: column;
+	-ms-flex-wrap: nowrap;
+	flex-wrap: nowrap;
+}
+
+h1 {
+	font-size: 1.6vw;
+	color: #ffffff;
+}
+h2 {
+	font-size: 1vw;
+	color: #a0a0a0;
+}
+p, li, span {
+	font-size: 0.9vw;
+	color: #000000;
+}
+
+
+#im-header-view {
+    
+	min-height:74px;
+	background:#0071c5;
+	background-image: url('../images/header_bg.gif');
+	
+	font-size: 1.4vw;
+	color: #ffffff;
+}
+
+#header {
+	font-size: 1.6vw;
+	color: #ffffff;
+	padding-top: 12px;
+	padding-left: 3px;
+
+}
+
+#main {
+	background:#ffffff;
+	/*Flex Child Attributes*/
+	-webkit-flex: 1 0 auto;
+	-moz-flex: 1 0 auto;
+	-ms-flex: 1 0 auto;
+	flex: 1 0 auto;
+
+
+	/*Flex Parent Attributes*/
+	display: -webkit-box;
+	display: -moz-box;
+	display: -ms-flexbox;
+	display: -webkit-flex;
+	display: flex;
+
+	-webkit-flex-direction: row;
+	-moz-flex-direction: row;
+	-ms-flex-direction: row;
+	flex-direction: row;
+    
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+}
+
+#im-footer-view {
+	background:#ffffff;
+	background-image: url('../images/footer_BG_white.png');
+	-webkit-flex: 0 0 38px;
+	-moz-flex: 0 0 38px;
+	-ms-flex: 0 0 38px;
+	flex: 0 0 38px;
+}

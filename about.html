@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="General purpose visualization tool for OCCI Entity instances">
+    <meta name="author" content="Gregory Katsaros">
+
+
+    <!--
+    about.html
+    
+    Copyright (c) 2014 Intel Corporation (UK) Ltd.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+
+    -->
+
+
+
+
+    <title>OCCI resources visualization app</title>
+
+    <link rel="shortcut icon" href="intel.ico">
+
+    <!-- Bootstrap Core CSS 
+    <link href="css/theme/bootstrap.min.css" rel="stylesheet">-->
+    <link href="css/bootstrap4intel.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/im_style.css">
+
+    <!-- jQuery Version 1.11.1 -->
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap-select.js"></script>
+
+    
+    
+</head>
+
+<body>
+    
+    <div id="im-header-view">
+        <div id="header"> OCCI Resources visualization </div>
+    </div>
+
+    
+    <div id="main">
+    
+
+    <!-- Navigation -->
+   
+ <nav class="navbar navbar-default" role="navigation">
+  
+ <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+    <ul class="nav navbar-nav">    
+        <li><a href="index.html">Home</a></li>
+        <li class="active"><a href="#">About</a></li>
+    </ul>
+    </div>
+ 
+</nav>
+
+
+        
+ <!-- Page Content -->
+    <div class="container-fluid">
+ 
+
+   <h3>About</h3>
+
+        <p>
+            This is a general purpose visualization tool for OCCI <i>Entity</i> instances. <br>
+            OCCI <i>Resource</i> entities are visualized as points on a round wheel, while the <i>Link</i> entities connecting the <i>Resources</i> are depicted as colorful lines between them.
+            <br>
+            This web application consists of two parts: (a) the <b>OCCI diagram/map</b>, (b) the <b>OCCI visualization web application</b>. 
+            <br>
+            This project has been developed by <a href="mailto:gregory.katsaros@intel.com">Gregory Katsaros</a>, Cloud Services Lab, Intel Labs Europe, and is  distributed under the Apache License, Version 2.0. 
+        </p>
+
+        <h3> OCCI diagram/map</h3>
+        <p>
+            The OCCI diagram/map is a web page developed using the <a href="http://d3js.org/"><b>d3.js</b></a> library and consists of two files: occi_diagram.html and occi_digrama.css. The OCCI diagram can also be used independently from the rest web application and, thus, be integrated within other platforms/websites. 
+            <br> 
+            The <i>Links</i> representation and the OCCI data source can be customized by editing the occi_diagram.html:
+            <xmp>
+            //link styles initialization
+            //The format of the following object is: source_resource_term:style_class
+            var linkstyles = { "agreement":"agreementlink", "storage":"storageink"};
+            //url initialization
+            var base_server_url = "http://ServerNameOrIPAddress/slamonitor/data.json"; //default local dataset
+            var search_term = "";
+            </xmp>
+            This OCCI resource visualization will work with any OCCI compliant server as long as it supports a JSON rendering. <br>
+            The respective style classes must be present in the occi_diagram.css. E.g.: 
+            <xmp>
+            .compute {
+              font: 300 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
+              fill: #FF0000;
+            }
+            .network {
+              font: 300 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
+              fill: #886A08;
+            }
+            </xmp>            
+         </p>
+     
+        <h3>OCCI visualization web application</h3>
+        <p>
+            The OCCI web application is a set of html, css and js files that work as a "wrapper" around the OCCI diagram/map. It shows how the map can be integrated within a web platform.
+            <br>
+            This web application has been developed using the <a href="http://getbootstrap.com/"><b>Bootstrap framework</b></a>. 
+            <br>
+            The icons included in this project have been distributed by <a href="http://www.thenounproject.com/"><b>The Noun Project</b></a> under the Creative Commons (CC BY 3.0) license.
+        </p>
+
+       <p>
+
+        Specifically this software includes components that are released under the following licences:
+         <ul>
+            <li>bootstrap.js, bootstrap.min.js, bootstrap-select.js, jQuery, fonts (glyphicons-halflings-regular): MIT License (MIT)
+            <li>d3.js: BSD License
+            <li>Computer node: Creative Commons - Computer designed by Simple Icons from the Noun Project
+            <li>Agreement node: Creative Commons - Quote designed by Yazmin Alanis from the Noun Project
+            <li>Network node: Creative Commons - Network designed by Edward Boatman from the Noun Project
+            <li>Storage node: Creative Commons - Hard Drive designed by Oleg Frolov from the Noun Project
+         </ul>
+
+       </p>
+        
+
+    </div>
+    </div>
+
+    <div id="im-footer-view">
+        <img src="images/footer_Intel_Peel_white.gif" style="float: right;">    
+    </div>
+
+</body>

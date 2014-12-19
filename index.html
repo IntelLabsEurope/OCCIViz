@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="General purpose visualization tool for OCCI Entity instances">
+    <meta name="author" content="Gregory Katsaros">
+    
+    <!--
+    index.html
+    
+	Copyright (c) 2014 Intel Corporation (UK) Ltd.
+
+	Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+
+
+    -->
+
+
+    <title>OCCI resources visualization app</title>
+
+	<link rel="shortcut icon" href="intel.ico">
+
+	<!-- Bootstrap Core CSS 
+    <link href="css/theme/bootstrap.min.css" rel="stylesheet">-->
+    <link href="css/bootstrap4intel.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap-select.css">
+	<link rel="stylesheet" href="css/im_style.css">
+
+	<!-- jQuery Version 1.11.1 -->
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap-select.js"></script>
+
+	
+	
+</head>
+
+<body>
+	
+	<div id="im-header-view">
+		<div id="header"> OCCI Resources visualization </div>
+	</div>
+
+	<div id="main">
+	
+
+	<!-- Navigation -->
+   
+ <nav class="navbar navbar-default" role="navigation">
+<!--  <div class="container-fluid">-->
+ <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+    <ul class="nav navbar-nav">    
+        <li class="active"><a href="#">Home</a></li>
+        <li><a href="about.html">About</a></li>
+    </ul>
+    </div>
+ <!-- </div> /.container-fluid -->
+</nav>
+
+
+		
+ <!-- Page Content -->
+    <div class="container-fluid">
+ 
+ 		<div class="row" >
+            <div class="col-md-4">
+                <div class="input-group">
+                <span class="input-group-addon">Server base url </span>
+                <input type="text" class="form-control" placeholder="OCCI Server url" id="server_base_url" value="http://192.168.56.101:8888">
+                </div>
+            </div>
+        
+            <div class="col-md-3">
+                <script>$('.selectpicker').selectpicker();</script>
+                Select Link type: 
+                <select class="selectpicker" id="links" multiple  onchange="document.getElementById('textbox').innerHTML = ''; var iframe = document.getElementById('diagram_frame');  iframe.src = iframe.src;">
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="search_term" placeholder="Category term">
+                         <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" OnClick="document.getElementById('textbox').innerHTML = ''; var iframe = document.getElementById('diagram_frame');  iframe.src = iframe.src; get_links();">Go!</button>
+                        </span>
+                 </div><!-- /input-group --> 
+            </div>
+
+
+        </div> <!-- END ROW -->
+
+
+         <script>
+
+         function get_links(){
+            
+            $.ajax({
+              beforeSend: function(req) {
+                    req.setRequestHeader("Accept", "application/occi+json");
+                },
+              type: 'GET',
+              url: document.getElementById('server_base_url').value+"/-/",
+              async: false,
+              success: function(data)
+              {
+                //console.log(data);
+                var link_kinds = []
+                document.getElementById("links").options.length = 0;
+                var select = document.getElementById("links");
+
+                data.forEach(function(resource){    
+                    if(resource.related != undefined && resource.related != null){
+                        resource.related.forEach(function(r){
+                           if(r=="http://schemas.ogf.org/occi/core#link") {
+                                //console.log(resource.term);
+                                link_kinds.push(resource.term);
+                                opt = document.createElement("option");
+                                opt.value = resource.term;
+                                opt.textContent = resource.term;
+                                select.appendChild(opt);      
+                           }
+                           
+                        });
+                    }
+                    
+                });
+
+              }, error: function(e)  {
+                    
+                    document.getElementById("links").options.length = 0;
+                    
+                    console.log(JSON.stringify(e.statusText, null, 2));
+                    document.getElementById("errorbox").innerHTML = '<div class="alert alert-danger alert-dismissible" role="alert">'+JSON.stringify(e.statusText, null, 2)+'</div>';
+                       
+
+              } }); // jquerry ajax end
+
+        $('.selectpicker').selectpicker('refresh');
+
+
+        } // get links end
+
+
+        get_links();
+
+        </script>
+
+        <hr>
+        <div class="row" >
+         	<div class="col-xs-12 col-sm-12 col-md-12" id="errorbox"></div>
+              
+            
+        </div>
+
+
+        <!-- Heading Row -->
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-9" id="sla-viz">
+                <div class="panel panel-default">
+                    <div class="panel-heading"> SLAs map</div>
+                    <iframe src="occi_diagram.html" marginwidth="0" marginheight="0" scrolling="yes" width="100%" height="103%" align="center" frameBorder="0" id="diagram_frame"></iframe>
+                </div>
+            </div>
+
+            
+            <div class="col-lg-3 visible-lg"> 
+           
+                <!-- Right panel-->
+                <div id="textbox"></div>
+
+            </div>
+            <!-- /.col-md-4 -->
+        </div>
+
+	</div>
+	</div>
+
+
+	<div id="im-footer-view">
+		<img src="images/footer_Intel_Peel_white.gif" style="float: right;">    
+	</div>
+
+</body>

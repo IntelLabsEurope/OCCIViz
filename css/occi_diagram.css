@@ -1,0 +1,133 @@
+
+/*
+    
+  Copyright (c) 2014 Intel Corporation (UK) Ltd.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+*/
+
+
+.compute:hover,.network:hover,.application:hover,.storage:hover,.agreement:hover,.party:hover {
+  font: 700 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  fill: #000000;
+  text-decoration: underline;
+}
+
+.compute {
+  font: 300 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  fill: #FF0000;
+}
+
+.network {
+  font: 300 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  fill: #886A08;
+}
+
+.application {
+  font: 300 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  fill: #0B615E;
+}
+
+.storage {
+  font: 300 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  fill: #0B0B61;
+}
+
+.agreement {
+  font: 300 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  /*fill: #088A29;*/
+  fill: #DF7401;
+}
+
+
+.party {
+  font: 300 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  fill: #0B3B24;
+}
+
+.agreementlink {
+  stroke: #DF7401;
+  stroke-opacity: .3;
+  fill: none;
+  pointer-events: none ;
+}
+
+.agreementpartylink {
+  stroke: #A4A4A4;
+  stroke-opacity: .3;
+  fill: none;
+  pointer-events: none ;
+}
+
+
+
+
+ .node{
+  font: 300 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  fill: #bbb;
+}
+
+
+.legend rect {
+  fill:white;
+  stroke:black;
+  opacity:0.8;}
+
+.link {
+  stroke: steelblue;
+  stroke-opacity: .2;
+  fill: none;
+  pointer-events: none;
+}
+
+div.tooltip {   
+  position: absolute;           
+  text-align: left;           
+  vertical-align:middle;
+  padding: 2px;             
+  font: 12px sans-serif;        
+  background: #EB9594;
+  border: 0px;      
+  border-radius: 8px;           
+  pointer-events: none;
+  z-index: 200;         
+}
+
+.node:hover,
+.node--source,
+.node--target {
+  font-weight: 700;
+}
+
+.node--source {
+  fill: #2ca02c;
+}
+
+.node--target {
+  fill: #d62728;
+}
+
+.link--source,
+.link--target {
+  stroke-opacity: 1;
+  stroke-width: 2px;
+}
+
+.link--source {
+  stroke: #d62728;
+}
+
+.link--target {
+  stroke: #2ca02c;
+}

@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="description" content="General purpose visualization tool for OCCI Entity instances">
+<meta name="keywords" content="OCCI,D3,SLAs">
+<meta name="author" content="Gregory Katsaros">
+
+
+  <!--
+  occi_diagram.html
+    
+  Copyright (c) 2014 Intel Corporation (UK) Ltd.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+
+  -->
+
+
+
+<!-- Diagram custom CSS-->
+<link href="css/occi_diagram.css" rel="stylesheet">
+
+<body style="overflow-y: hidden">
+<script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
+<!-- jQuery Version 1.11.1 -->
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+<script>
+
+//link styles initialization
+//The format of the following object is: source_resource_term:style_class
+var linkstyles = { "agreement":"agreementlink"};
+
+//url initialization
+var base_server_url = "data.json"; //default local dataset
+var search_term = "";
+//----------- 
+
+
+var server_url = "";
+
+//get values from parent if available
+if(parent.document.getElementById("server_base_url") != null){
+  if(parent.document.getElementById("server_base_url").value != ""){
+    base_server_url = parent.document.getElementById("server_base_url").value;
+  }
+}
+
+if(parent.document.getElementById("search_term") != null){
+  search_term = parent.document.getElementById("search_term").value;
+  search_term = search_term.replace(" ","");
+}
+
+
+if (search_term != null && search_term !=""){
+    server_url = base_server_url+"/"+search_term+"/"
+  } else {
+    server_url = base_server_url;
+  }
+
+
+console.log("base_url: "+base_server_url);
+console.log("search term: "+search_term);
+console.log("server_url: "+server_url);
+
+
+//Check for Link type selection from parent
+var optionslist = {};
+var somethingSelected = false;
+
+if(parent.document.getElementById("links") != null){ 
+
+  var selectobject = parent.document.getElementById("links");
+  optionslist = getselected(selectobject);
+  //console.log(optionslist);
+} 
+     
+function getselected(selectobject) {
+        var results = {};
+        for (var i=0; i<selectobject.options.length; i++) {
+          var option = selectobject.options[i];
+          var value = option.value;
+
+          results[value] = option.selected;
+          if (option.selected == true){
+              somethingSelected=true;
+          }
+        }
+        return results;
+      }
+
+//Check for Link type selection from parenet END
+
+
+
+//d3 initialization
+
+var nodeList = [];
+var nodes ="";
+var nodeSelect = false;
+
+var diameter = 840,
+    radius = diameter / 2,
+    innerRadius = radius - 70;
+
+  var cluster = d3.layout.cluster()
+    .size([360, innerRadius])
+    .sort(null);
+    //.value(function(d) { return d.size; });
+
+  var bundle = d3.layout.bundle();
+
+  var line = d3.svg.line.radial()
+    .interpolate("bundle")
+    .tension(.75)
+    .radius(function(d) { return d.y - 25; })
+    .angle(function(d) { return d.x / 180 * Math.PI; });
+
+  var svg = d3.select("body").append("svg")
+    .attr("width", diameter)
+    .attr("height", diameter)
+    .append("g")
+    .attr("transform", "translate(" + radius + "," + radius + ")");
+
+  var link = svg.append("g").selectAll(".link"),
+      node = svg.append("g").selectAll(".node");
+
+
+  var div = d3.select("body").append("div")   
+    .attr("class", "tooltip")               
+    .style("opacity", 0);
+
+  d3.select(self.frameElement).style("height", diameter + "px");
+
+
+
+// get json data and create node list. Includes only Resource entities and not Link entities
+$.ajax({
+  beforeSend: function(req) {
+        req.setRequestHeader("Accept", "application/occi+json");
+    },
+  type: 'GET',
+  url: server_url,
+  async: false,
+  success: function(data)
+  {
+
+    
+    if(data.length == 0){
+      console.log("No resources with that term found.");
+      
+      parent.document.getElementById("errorbox").innerHTML = '<div class="alert alert-danger alert-dismissible" role="alert">No resources with that term found.</div>';
+    } else {
+
+    if(parent.document.getElementById("errorbox") != null){
+      parent.document.getElementById("errorbox").innerHTML = '';
+    }
+
+    data.forEach(function(resource){     
+    
+       
+    if(isResource(resource)){
+
+    var links = [];
+      if(resource.links != null && resource.links.length>0){
+        resource.links.forEach(function(link){
+          var links_name;
+          if (somethingSelected) {
+          if(optionslist[link.kind.term]){
+            links_name = name =(link.attributes['occi.core.target']).replace(/\//g,".");
+            links.push(links_name);
+        }
+      } else {
+          links_name = name =(link.attributes['occi.core.target']).replace(/\//g,".");
+          links.push(links_name);
+      }
+        
+        });
+      }
+
+      name =(resource.attributes['occi.core.id']).replace(/\//g,".");
+
+      // -------------- Create node ----------------
+      var node = {"name":name,"term":resource.kind.term,"kinds":"","links":links,"location":resource.attributes['occi.core.id'], "attributes":resource.attributes, "mixins":resource.mixins, "title":resource.kind.title};
+      
+      nodeList.push(node);
+
+    }
+    });
+    
+
+    //draw the diagram
+    drawDiagram(nodeList);
+  }
+   
+  
+}, error: function(e)  {
+
+  console.log(JSON.stringify(e.statusText, null, 2));
+  parent.document.getElementById("errorbox").innerHTML = '<div class="alert alert-danger alert-dismissible" role="alert">'+JSON.stringify(e.statusText, null, 2)+'</div>';
+
+} }); // jquerry ajax end
+
+
+//*************************************************************************************************************
+//*************************************FUNCTIONS************************************************************************
+
+
+
+function drawDiagram(nodelist){
+
+  
+  //console.log(nodelist);
+
+  //load data
+  nodes = cluster.nodes(packageHierarchy(nodelist)),
+  links = packageImports(nodes);
+  
+
+  link = link
+      .data(bundle(links))
+      .enter().append("path")
+      .each(function(d) { d.source = d[0], d.target = d[d.length - 1]; })
+      .attr("class", function(d) {       
+      if(d.source.term in linkstyles) {return linkstyles[d.source.term];} else { return "link"}
+      })
+      .attr("d", line);
+
+
+  node = node
+      .data(nodes.filter(function(n) { return !n.children; }))
+      .enter().append("text")
+      .attr("class", function(d) { return d.term})
+      .attr("dy", ".31em")
+      .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + (d.y + 8) + ",0)" + (d.x < 180 ? "" : "rotate(180)"); })
+      .style("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })
+      .text(function(d) {  
+          return (d.key).substr(0,7)+"...";
+        })
+      .on("click", click)
+      .on("dblclick", NodeSelect)
+      .on("mouseover", mouseovered)
+      .on("mouseout", mouseouted);
+
+
+
+
+/* ARCS design */
+var pi = Math.PI;
+
+var groupData = svg.selectAll(".group")
+    .data(nodes.filter(function(d) { if(d.key==d.name.replace(".","")){ return d.children;} }))
+    .enter().append("g")
+    .attr("class", "group");
+    
+  var groupArc = d3.svg.arc()
+    .innerRadius(innerRadius)
+    .outerRadius(innerRadius - 25)
+    .startAngle(function(d) { return (findStartAngle(d.children)-2) * pi / 180;})
+    .endAngle(function(d) { return (findEndAngle(d.children)+2) * pi / 180});
+  
+   var groupPath = groupData.append("path")     
+                      .attr("d", groupArc)
+                      .attr("id", function(d, i) { return d.key; })
+                      .attr("class", function(d) { return d.key; })
+                      .style("fill-opacity", 0.3)
+                      .on("mouseover", linksredraw)
+                      .on("mouseout", linksredrawreset);
+
+
+       // Add a text label.
+    var groupText = groupData.append("text")
+        .attr("x", 6)
+        .attr("dy", 16);   
+
+
+  groupText.append("textPath")
+        .attr("xlink:href", function(d, i) { return "#"+groupPath[0][i].id;})
+        .text(function(d, i) { if (d.children.length > 2) {return d.children[0].title }});
+
+// END ARC DESIGN
+
+
+//legend tags
+var linktype = ["Outgoing link","Incoming link"];
+var linkclass = ["link--source","link--target"];
+
+for (var key in linkstyles){
+    linktype.push("Source is "+key);
+    linkclass.push(linkstyles[key]);
+}
+
+
+
+//Legend 
+var legend = svg.selectAll(".legend")
+    .data(linktype)
+    .enter().append("g")
+    .attr("class", "legend")
+    .attr("transform", function (d, i) {
+    return "translate(0," + i * 20 + ")";
+});
+
+
+legend.append("line")
+        .attr("x1", -400)
+        .attr("y1", -400)
+        .attr("x2", -390)
+        .attr("y2", -400)
+        .attr("stroke-width", 2)
+        .attr("class", function(d,i){ return linkclass[i]});
+
+
+legend.append("text")
+    .attr("x", -380)
+    .attr("y", -400)
+    .attr("dy", ".35em")
+    .style("text-anchor", "start")
+    .text(function(d,i){ return linktype[i]});
+
+}
+
+
+function linksredraw(d){
+
+link[0].forEach(function(entry) {
+  
+  //console.log(entry);  
+
+  if(entry.__data__.source.term != d.key && entry.__data__.target.term != d.key) {
+
+    if(entry.style.visibility == "hidden"){
+      entry.style.visibility = "visible";
+    } else {
+      entry.style.visibility = "hidden";
+    }
+  }
+
+}); 
+}
+
+
+function linksredrawreset(d){
+
+link[0].forEach(function(entry) {
+    entry.style.visibility = "visible"; }); 
+}
+
+function findStartAngle(children) {
+    var min = children[0].x;
+    children.forEach(function(d) {
+       if (d.x < min)
+           min = d.x;
+    });
+    return min;
+}
+ 
+function findEndAngle(children) {
+    var max = children[0].x;
+    children.forEach(function(d) {
+       if (d.x > max)
+           max = d.x;
+    });
+    return max;
+}
+
+
+//check if an entity is a Resource
+function isResource(entity){
+
+  var result;
+  entity.kind.related.forEach(function(r){
+    if(r=="http://schemas.ogf.org/occi/core#resource"){
+      result = true;
+      return true;
+    }
+    result = false;
+    return false;
+  });
+  return result;
+}
+
+
+//Draw Resource details panel
+function click(d) {
+ 
+
+  var HTMLData = "";
+
+  $.ajax({
+    beforeSend: function(req) {
+        req.setRequestHeader("Accept", "application/occi+json");
+    },
+   type: 'GET',
+    url: base_server_url+d.location,
+    async: false,
+    success: function(data)
+    {
+    
+
+
+        HTMLData = '<div class="panel panel-default">\n';
+
+      /* Here is the icon selection for each OCCI Kind based on their term.
+      The respective icons must pe present in the icons folder using the following naming format:
+      "term_name"_icon.png
+      */
+      if(data.kind.title != ""){
+        HTMLData += '<div class="panel-heading"><img src="icons/'+data.kind.term+'_icon.png" alt="'+data.kind.term+'" height="30" width="30">  '+data.kind.title+'</div>\n';
+      }
+
+      
+      HTMLData += '<div class="panel-body">\n';
+      
+      HTMLData += '<ul class="list-group">\n';
+
+
+      //ATTRIBUTES
+      HTMLData += '<li class="list-group-item"> <strong> Kind </strong> </br>\n';
+        HTMLData += '<u>Scheme:</u> '+data.kind.scheme+data.kind.term+"</br>\n";
+        for (i = 0; i < data.kind.related.length; i++) { 
+          
+          HTMLData += '<u>Related scheme:</u> '+data.kind.related[i]+"\n";
+        }
+        HTMLData += '</br>\n';    
+      
+      HTMLData += '</li>\n';
+
+
+      //ATTRIBUTES
+      HTMLData += '<li class="list-group-item"> <strong> Attributes </strong> </br>\n';
+      for (var attribute in data.attributes){
+        HTMLData += '<u>'+attribute + '</u>: '+data.attributes[attribute]+"\n";
+        HTMLData += '</br>\n';    
+      }
+      HTMLData += '</li>\n';
+
+
+      if(data.mixins != "" && data.mixins.length > 0){
+        HTMLData += '<li class="list-group-item"> <strong> Mixins </strong> </br>\n';
+        data.mixins.forEach(function(m){
+          HTMLData += '<u>'+m.title+'</u>: '+ m.scheme+m.term+"\n";
+          HTMLData += '</br>\n';  
+        });
+      HTMLData += '</li>\n';
+
+      }
+
+
+      if (data.links != null && data.links.length > 0){
+        HTMLData += '<li class="list-group-item"> <strong> Links (targets) </strong> </br>\n';
+        data.links.forEach(function(l){
+          HTMLData += '<u>'+l.kind.term + '</u>: '+l.attributes['occi.core.target']+"</br>";
+        });  
+                    
+        HTMLData += '</li>\n';
+      }
+
+     
+      HTMLData += '</ul>\n';
+      HTMLData += '</div>\n';
+     //console.log(HTMLData);
+
+      parent.document.getElementById("textbox").innerHTML = HTMLData;
+      //parent.document.getElementById("textbox_d").innerHTML = HTMLData;
+  
+ //ajax call end
+}, error: function(e)  {
+
+  console.log(JSON.stringify(e.statusText, null, 2));
+  parent.document.getElementById("errorbox").innerHTML = '<div class="alert alert-danger alert-dismissible" role="alert">'+JSON.stringify(e.statusText, null, 2)+'</div>';
+
+} }); // jquerry ajax end
+
+}//click end
+
+
+function NodeSelect(d) {
+
+  if (nodeSelect) {
+    nodeSelect = false;
+  } else {
+    nodeSelect = true;
+  }
+}
+
+
+function mouseovered(d) {
+
+  
+
+  div.transition()        
+     .duration(100)      
+     .style("opacity", .9);      
+     //div .html("<img src='icons/"+d.term+"_icon.png' alt='"+d.term+"' height='30' width='30'>"+d.location + "<br/>")  
+     div .html("<table><tr><td><img src='icons/"+d.term+"_icon.png' alt='"+d.term+"' height='30' width='30'></td><td>"+d.title+"</br>"+d.location+"</td></tr></table>")  
+     .style("left", (d3.event.pageX) + "px")     
+     .style("top", (d3.event.pageY - 28) + "px");  
+
+  if(!nodeSelect){
+
+  node
+      .each(function(n) { n.target = n.source = false; });
+
+  link
+      .classed("link--target", function(l) { if (l.target === d) return l.source.source = true; })
+      .classed("link--source", function(l) { if (l.source === d) return l.target.target = true; })
+    .filter(function(l) { return l.target === d || l.source === d; })
+      .each(function() { this.parentNode.appendChild(this); });
+
+  node
+      .classed("node--target", function(n) { return n.target; })
+      .classed("node--source", function(n) { return n.source; });
+
+
+  } //nodeSelect
+
+}
+
+function mouseouted(d) {
+
+
+  div.transition()        
+                .duration(300)      
+                .style("opacity", 0); 
+
+  if(!nodeSelect){
+
+  link
+      .classed("link--target", false)
+      .classed("link--source", false);
+
+  node
+      .classed("node--target", false)
+      .classed("node--source", false);
+
+  
+
+  } //nodeSelect
+
+}
+
+
+// Lazily construct the package hierarchy from class names.
+function packageHierarchy(classes) {
+  var map = {};
+
+  function find(name, data) {
+    var node = map[name], i;
+    if (!node) {
+      node = map[name] = data || {name: name, children: []};
+      if (name.length) {
+        node.parent = find(name.substring(0, i = name.lastIndexOf(".")));
+        node.parent.children.push(node);
+        node.key = name.substring(i + 1);
+      }
+    }
+    return node;
+  }
+
+  classes.forEach(function(d) {
+    find(d.name, d);
+  });
+
+  return map[""];
+}
+
+// Return a list of imports for the given array of nodes.
+function packageImports(nodes) {
+  var map = {},
+      links = [];
+
+  // Compute a map from name to node.
+  nodes.forEach(function(d) {
+    map[d.name] = d;
+  });
+
+  // For each import, construct a link from the source to target node.
+  nodes.forEach(function(d) {
+    if (d.links) d.links.forEach(function(i) {
+      if(map[i] != undefined && isInList(map[i])){
+      links.push({source: map[d.name], target: map[i]});
+    }
+    });
+  });
+
+  return links;
+}
+
+function isInList(node) {
+
+  var exist = false;
+
+  nodeList.forEach(function(n){
+  
+   if(n.name == node.name){
+      exist = true;
+    }
+  });
+    
+  return exist;
+
+}
+
+</script>
+
