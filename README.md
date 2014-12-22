@@ -1,11 +1,11 @@
 # About
 
 This is a general purpose visualization tool for OCCI Entity instances. 
-Through this application the OCCI Resource entities are being visualized as points on a round wheel, while the Link entities connecting the Resources are being depicted as colorfull lines between them.
-
-This web application is consisted of two parts: (a) **the OCCI diagram/map**, (b) the **OCCI visualization web application**. 
-
-This complete project have been developed by Gregory Katsaros, Intel, Cloud and Services Lab, and is being distrbuted under Apache 2.0 license. 
+OCCI Resource entities are visualized as points on a round wheel, while the Link entities connecting the Resources are depicted as colorful lines between them.
+ 
+This web application consists of two parts: (a) **the OCCI diagram/map**, (b) the **OCCI visualization web application**. 
+ 
+This project has been developed by [Gregory Katsaros](mailto:gregory.katsaros@intel.com), Cloud Services Lab, Intel Labs Europe, and is  distributed under the Apache License, Version 2.0. 
 
 
 ## OCCI diagram/map
@@ -18,7 +18,7 @@ The Links representation and the OCCI data source can be customized by editing t
     //The format of the following object is: source_resource_term:style_class
     var linkstyles = { "agreement":"agreementlink", "storage":"storageink"};
     //url initialization
-    var base_server_url = "data.json"; //default local dataset
+    var base_server_url = "data.json"; //default local dataset. The URL of the OCCI enabled server can be used also: e.g. http://ServerNameOrIPAddress:port
     var search_term = "";
         
 
@@ -44,7 +44,9 @@ This web application has been developed using the [Bootstrap framework](http://g
 
 The icons included in the specific project have been distributed by The [Noun Project](http://thenounproject.com/) under the Creative Commons (CC BY 3.0) license.
     
-The following icons have been used:
+ Specifically this software includes components that are released under the following licences:
+* bootstrap.js, bootstrap.min.js, bootstrap-select.js, jQuery, fonts (glyphicons-halflings-regular): MIT License (MIT)
+* d3.js: BSD License
 * Computer node: Creative Commons - Computer designed by Simple Icons from the Noun Project
 * Agreement node: Creative Commons - Quote designed by Yazmin Alanis from the Noun Project
 * Network node: Creative Commons - Network designed by Edward Boatman from the Noun Project
