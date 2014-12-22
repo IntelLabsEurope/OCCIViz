@@ -33,7 +33,9 @@ The respective style classes must be present in the occi_diagram.css. E.g.:
     font: 300 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
     fill: #886A08;
     }
-                        
+              
+
+You can preview the OCCI diagram/map [here](http://bl.ocks.org/gkatsaros/a0a43032c4b50a246d4d).          
      
 ## OCCI visualization web application
     
